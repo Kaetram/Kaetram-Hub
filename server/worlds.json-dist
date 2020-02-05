@@ -1,0 +1,6 @@
+{
+    "world1": {
+        "ip": "subdomain.domain.com",
+        "apiPort": "9002"
+    }
+}

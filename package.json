@@ -1,0 +1,23 @@
+{
+  "name": "kaetram-hub",
+  "version": "1.0.0",
+  "description": "A solution for linking up multiple Kaetram worlds.",
+  "main": "src/js/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server/js/main"
+  },
+  "dependencies": {
+    "log": "<=1.4.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Veradictus/Kaetram-Hub.git"
+  },
+  "author": "",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/Veradictus/Kaetram-Hub/issues"
+  },
+  "homepage": "https://github.com/Veradictus/Kaetram-Hub#readme"
+}
