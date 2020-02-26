@@ -11,8 +11,8 @@ class Main {
         let self = this;
 
         self.worldController = new Worlds();
-        self.connectorController = new Connector();
-        
+        self.connectorController = new Connector(self.worldController);
+
     }
 
 }

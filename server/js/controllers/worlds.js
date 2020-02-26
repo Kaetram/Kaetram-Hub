@@ -9,7 +9,7 @@ class Worlds {
 
         self.worlds = {};
 
-        self.pingInterval = 20000; // 20 seconds
+        self.pingInterval = 5000; // 20 seconds
 
         self.load();
         self.loadPinger();
@@ -20,11 +20,16 @@ class Worlds {
 
         _.each(worldsConfig, (world, key) => {
             self.worlds[key] = {
-                ip: world.ip,
-                gamePort: parseInt(world.gamePort),
-                apiPort: parseInt(world.apiPort),
+                gameIp: world.gameIp,
+                api: world.api,
                 status: 'offline'
             };
+
+            if (world.gamePort)
+                self.worlds[key].gamePort = world.gamePort;
+
+            if (world.apiPort)
+                self.worlds[key].apiPort = world.apiPort;
         });
 
         let worldCount = Object.keys(self.worlds).length;
@@ -36,21 +41,45 @@ class Worlds {
         let self = this;
 
         setInterval(() => {
+
             _.each(self.worlds, (world) => {
 
                 self.pingWorld(world);
 
             });
-        });
+
+        }, self.pingInterval);
 
     }
 
     pingWorld(world) {
-        let self = this;
+        let self = this,
+            apiUrl = 'http://' + world.api;
 
-        
+        if (world.apiPort)
+            apiUrl += ':' + world.apiPort;
+
+        Request(apiUrl, (error, response, body) => {
+            if (error) {
+                world.status = 'offline';
+                return;
+            }
+
+            try {
+                world.data = JSON.parse(body);
+            } catch (e) {
+                world.status = 'offline';
+            }
+
+        });
+
     }
 
+    forEachWorld(callback) {
+        _.each(this.worlds, (world) => {
+            callback(world);
+        })
+    }
 
 }
 
