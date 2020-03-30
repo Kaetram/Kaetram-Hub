@@ -1,9 +1,10 @@
-let Log = require('log'),
+let Log = require('./util/log'),
     Connector = require('./controllers/connector'),
     Worlds = require('./controllers/worlds'),
-    config = require('../config');
+    API = require('./network/api');
 
-log = new Log(config.debugLevel, config.localDebug ? fs.createWriteStream('runtime.log') : null);
+config = require('../config');
+log = new Log();
 
 class Main {
 
@@ -12,6 +13,7 @@ class Main {
 
         self.worldController = new Worlds();
         self.connectorController = new Connector(self.worldController);
+        self.apiController = new API();
 
     }
 

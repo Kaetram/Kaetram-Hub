@@ -1,4 +1,4 @@
 node_modules
 package-lock.json
-config.json
-worlds.json
+config.js
+worlds.js

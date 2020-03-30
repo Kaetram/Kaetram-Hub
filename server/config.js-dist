@@ -1,0 +1,10 @@
+let Config = {};
+
+Config.name = "Kaetram Hub";
+
+Config.port = 9526;
+
+Config.debugLevel = 'all';
+Config.localDebug = false;
+
+module.exports = Config;
