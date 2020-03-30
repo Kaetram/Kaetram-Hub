@@ -16,6 +16,27 @@ class Worlds {
 
         self.worlds = {};
 
+        self.cleanupThreshold = 60000;//600000; // Clean up after 10 minutes
+        self.cleanupTime = 30000; // Update every 60 seconds.
+        self.cleanupInterval = null;
+
+        self.load();
+    }
+
+    load() {
+        let self = this;
+
+        self.cleanupInterval = setInterval(() => {
+
+            self.forEachWorld((world, key) => {
+                let time = new Date().getTime();
+
+                if (time - world.lastPing > self.cleanupThreshold)
+                    delete self.worlds[key];
+
+            });
+
+        }, self.cleanupTime);
     }
 
     addWorld(data) {
@@ -33,10 +54,9 @@ class Worlds {
 
     }
 
-
     forEachWorld(callback) {
-        _.each(this.worlds, (world) => {
-            callback(world);
+        _.each(this.worlds, (world, key) => {
+            callback(world, key);
         })
     }
 

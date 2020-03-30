@@ -37,7 +37,7 @@ class API {
             });
         });
 
-        router.post('/', (request, response) => {
+        router.post('/ping', (request, response) => {
             if (!request.body) {
                 response.json({ status: 'error' });
                 return;

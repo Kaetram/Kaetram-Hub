@@ -4,7 +4,7 @@ Config.name = "Kaetram Hub";
 
 Config.port = 9526;
 
+Config.debug = true;
 Config.debugLevel = 'all';
-Config.localDebug = false;
 
 module.exports = Config;
