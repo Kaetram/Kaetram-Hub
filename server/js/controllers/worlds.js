@@ -16,8 +16,8 @@ class Worlds {
 
         self.worlds = {};
 
-        self.cleanupThreshold = 60000;//600000; // Clean up after 10 minutes
-        self.cleanupTime = 30000; // Update every 60 seconds.
+        self.cleanupThreshold = 600000; // Clean up after 10 minutes
+        self.cleanupTime = 60000; // Update every 60 seconds.
         self.cleanupInterval = null;
 
         self.load();
@@ -48,6 +48,8 @@ class Worlds {
         }
 
         self.worlds[data.serverId] = {
+            host: data.address,
+            port: data.port,
             accessToken: data.accessToken,
             lastPing: new Date().getTime()
         };

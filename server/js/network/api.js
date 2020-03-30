@@ -43,6 +43,11 @@ class API {
                 return;
             }
 
+            let mappedAddress = request.connection.remoteAddress,
+                address = mappedAddress.split('::ffff:')[1];
+
+            request.body.address = address;
+
             self.worldController.addWorld(request.body);
 
             response.json({
