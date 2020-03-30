@@ -21,8 +21,14 @@ class Worlds {
     addWorld(data) {
         let self = this;
 
-        self.worlds[data.id] = {
+        if (data.serverId in self.worlds) {
+            self.worlds[data.serverId].lastPing = new Date().getTime();
+            return;
+        }
 
+        self.worlds[data.serverId] = {
+            accessToken: data.accessToken,
+            lastPing: new Date().getTime()
         };
 
     }

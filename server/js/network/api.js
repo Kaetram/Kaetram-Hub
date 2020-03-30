@@ -7,8 +7,10 @@ class API {
      * We use the API format from Kaetram.
      */
 
-    constructor() {
+    constructor(worldController) {
         let self = this;
+
+        self.worldController = worldController;
 
         let app = express();
 
@@ -36,8 +38,15 @@ class API {
         });
 
         router.post('/', (request, response) => {
+            if (!request.body) {
+                response.json({ status: 'error' });
+                return;
+            }
+
+            self.worldController.addWorld(request.body);
+
             response.json({
-                status: 'received'
+                status: 'success'
             });
         });
     }

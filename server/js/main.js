@@ -13,7 +13,7 @@ class Main {
 
         self.worldController = new Worlds();
         self.connectorController = new Connector(self.worldController);
-        self.apiController = new API();
+        self.apiController = new API(self.worldController);
 
     }
 
