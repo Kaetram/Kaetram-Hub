@@ -47,12 +47,8 @@ class Main {
                         return;
                     }
 
-                    self.apiController.getPlayer(username, (response) => {
+                    self.apiController.searchForPlayer(username, (response) => {
                         console.log(response);
-                    }, {
-                        address: '127.0.0.1',
-                        port: 9002,
-                        accessToken: 'lol'
                     });
 
                     break;

@@ -16,8 +16,6 @@ class Servers {
 
         self.servers = {};
 
-        self.cleanupThreshold = 600000; // Clean up after 10 minutes
-        self.cleanupTime = 60000; // Update every 60 seconds.
         self.cleanupInterval = null;
 
         self.load();
@@ -31,12 +29,14 @@ class Servers {
             self.forEachServer((server, key) => {
                 let time = new Date().getTime();
 
-                if (time - server.lastPing > self.cleanupThreshold)
+                if (time - server.lastPing > config.cleanupThreshold) {
                     delete self.servers[key];
+                    log.error(`Server ${key} removed from hub for inactivity`);
+                }
 
             });
 
-        }, self.cleanupTime);
+        }, config.cleanupTime);
     }
 
     addServer(data) {
@@ -54,6 +54,11 @@ class Servers {
             lastPing: new Date().getTime()
         };
 
+        log.notice(`Server ${data.serverId} has been added to the hub.`);
+    }
+
+    getServerCount() {
+        return Object.keys(this.servers).length;
     }
 
     forEachServer(callback) {

@@ -1,6 +1,7 @@
 let express = require('express'),
     request = require('request'),
-    bodyParser = require('body-parser');
+    bodyParser = require('body-parser'),
+    APIConstants = require('../util/apiconstants');
 
 class API {
 
@@ -57,53 +58,47 @@ class API {
         });
     }
 
-    getPlayer(playerName, callback, server) {
-        let self = this;
-
-        if (server) {
-            let url = self.getUrl(server, 'player'),
-                data = {
-                    form: {
-                        token: server.accessToken
-                    }
+    async getPlayer(playerName, server) {
+        let self = this,
+            url = self.getUrl(server, 'player'),
+            data = {
+                form: {
+                    token: server.accessToken,
+                    playerName: playerName
                 }
+            };
+
+        return new Promise((resolve) => {
 
             request.post(url, data, (error, response, body) => {
 
                 try {
-                    let data = JSON.parse(body);
-
-                    console.log(data);
+                    resolve(body);
                 } catch(e) {
                     log.error('An error has occurred while getting player.');
+                    resolve({ error: '`getPlayer`: An error has occurred.'});
                 }
 
             });
+        });
 
-            return;
-        }
     }
 
-    searchForPlayer(playerName, callback) {
-        let self = this;
+    async searchForPlayer(playerName, callback) {
+        let self = this,
+            serverList = self.serversController.servers;
 
-        self.serversController.forEachServer((server) => {
-            let url = self.getUrl(server, 'player');
+        for (let key in serverList) {
+            let server = serverList[key],
+                result = await self.getPlayer(playerName, server);
 
-            request.post(url, {}, (error, response, body) => {
+            callback(result);
+        }
 
-                try {
-                    let data = JSON.parse(body);
-
-                    console.log(data);
-                } catch(e) {}
-
-            });
-        });
     }
 
     getUrl(server, path) {
-        return `http://${server.address}:${server.port}/${path}`;
+        return `http://${server.host}:${server.port}/${path}`;
     }
 
 }
