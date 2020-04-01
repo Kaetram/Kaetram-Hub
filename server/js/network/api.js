@@ -1,4 +1,5 @@
 let express = require('express'),
+    request = require('request'),
     bodyParser = require('body-parser');
 
 class API {
@@ -7,10 +8,10 @@ class API {
      * We use the API format from Kaetram.
      */
 
-    constructor(worldController) {
+    constructor(serversController) {
         let self = this;
 
-        self.worldController = worldController;
+        self.serversController = serversController;
 
         let app = express();
 
@@ -48,12 +49,61 @@ class API {
 
             request.body.address = address;
 
-            self.worldController.addWorld(request.body);
+            self.serversController.addServer(request.body);
 
             response.json({
                 status: 'success'
             });
         });
+    }
+
+    getPlayer(playerName, callback, server) {
+        let self = this;
+
+        if (server) {
+            let url = self.getUrl(server, 'player'),
+                data = {
+                    form: {
+                        token: server.accessToken
+                    }
+                }
+
+            request.post(url, data, (error, response, body) => {
+
+                try {
+                    let data = JSON.parse(body);
+
+                    console.log(data);
+                } catch(e) {
+                    log.error('An error has occurred while getting player.');
+                }
+
+            });
+
+            return;
+        }
+    }
+
+    searchForPlayer(playerName, callback) {
+        let self = this;
+
+        self.serversController.forEachServer((server) => {
+            let url = self.getUrl(server, 'player');
+
+            request.post(url, {}, (error, response, body) => {
+
+                try {
+                    let data = JSON.parse(body);
+
+                    console.log(data);
+                } catch(e) {}
+
+            });
+        });
+    }
+
+    getUrl(server, path) {
+        return `http://${server.address}:${server.port}/${path}`;
     }
 
 }

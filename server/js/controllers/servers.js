@@ -1,20 +1,20 @@
 let Request = require('request'),
     _ = require('underscore');
 
-class Worlds {
+class Servers {
 
     /**
-     * We keep track of the worlds that are connected to the hub.
+     * We keep track of the servers that are connected to the hub.
      * When a server goes online, it pings the hub (if hub config is enabled)
      * and it will ping the hub at a set interval. We keep track of those
-     * pings here. If a world does not ping for a certain period of time,
+     * pings here. If a server does not ping for a certain period of time,
      * we just remove it to preserve resources.
      */
 
     constructor() {
         let self = this;
 
-        self.worlds = {};
+        self.servers = {};
 
         self.cleanupThreshold = 600000; // Clean up after 10 minutes
         self.cleanupTime = 60000; // Update every 60 seconds.
@@ -28,26 +28,26 @@ class Worlds {
 
         self.cleanupInterval = setInterval(() => {
 
-            self.forEachWorld((world, key) => {
+            self.forEachServer((server, key) => {
                 let time = new Date().getTime();
 
-                if (time - world.lastPing > self.cleanupThreshold)
-                    delete self.worlds[key];
+                if (time - server.lastPing > self.cleanupThreshold)
+                    delete self.servers[key];
 
             });
 
         }, self.cleanupTime);
     }
 
-    addWorld(data) {
+    addServer(data) {
         let self = this;
 
-        if (data.serverId in self.worlds) {
-            self.worlds[data.serverId].lastPing = new Date().getTime();
+        if (data.serverId in self.servers) {
+            self.servers[data.serverId].lastPing = new Date().getTime();
             return;
         }
 
-        self.worlds[data.serverId] = {
+        self.servers[data.serverId] = {
             host: data.address,
             port: data.port,
             accessToken: data.accessToken,
@@ -56,12 +56,12 @@ class Worlds {
 
     }
 
-    forEachWorld(callback) {
-        _.each(this.worlds, (world, key) => {
-            callback(world, key);
+    forEachServer(callback) {
+        _.each(this.servers, (server, key) => {
+            callback(server, key);
         })
     }
 
 }
 
-module.exports = Worlds;
+module.exports = Servers;

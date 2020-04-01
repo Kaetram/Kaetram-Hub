@@ -1,15 +1,15 @@
 class Connector {
 
-    constructor(worlds) {
+    constructor(serversController) {
         let self = this;
 
-        self.worlds = worlds;
+        self.serversController = serversController;
     }
 
-    findWorld(callback) {
+    findServer(callback) {
         let self = this;
 
-        self.worlds.forEachWorld((world) => {
+        self.serversController.forEachServer((server) => {
 
         });
     }
