@@ -40,7 +40,7 @@ class Main {
 
                 case 'server':
 
-                    self.apiController.findEmptyServer((response) => {
+                    self.api.findEmptyServer((response) => {
                         console.log(response);
                     });
 
@@ -55,7 +55,7 @@ class Main {
                         return;
                     }
 
-                    self.apiController.searchForPlayer(username, (response) => {
+                    self.api.searchForPlayer(username, (response) => {
                         console.log(response);
                     });
 

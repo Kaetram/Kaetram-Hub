@@ -97,11 +97,11 @@ class API {
         let self = this,
             url = self.getUrl(server, '');
 
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             request(url, (error, response, body) => {
                 if (error) {
                     log.error('Could not connect to server.');
-                    resolve({ error: '`getServer`: An error occurred.' });
+                    reject({ error: '`getServer`: An error occurred.' });
 
                     return;
                 }
@@ -113,10 +113,10 @@ class API {
                     if (data.playerCount < data.maxPlayers)
                         resolve(data);
                     else
-                        resolve({ error: 'World is full' });
+                        reject({ error: 'World is full' });
 
                 } catch (e) {
-                    resolve({ error: '`getServer` could not parse the response.' });
+                    reject({ error: '`getServer` could not parse the response.' });
                 }
 
             });
@@ -133,13 +133,13 @@ class API {
                 }
             };
 
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
 
             request.post(url, data, (error, response, body) => {
 
                 if (error) {
                     log.error('An error has occurred while getting player.');
-                    resolve({ error: '`getPlayer`: An error has occurred.' });
+                    reject({ error: '`getPlayer`: An error has occurred.' });
 
                     return;
                 }
@@ -148,10 +148,10 @@ class API {
 
                     let data = JSON.parse(body);
 
-                    resolve(data);
+                    data.error ? reject(data) : resolve(data);
 
                 } catch (e) {
-                    resolve({ error: '`getPlayer` could not parse the response.' });
+                    reject({ error: '`getPlayer` could not parse the response.' });
                 }
 
             });
@@ -164,16 +164,19 @@ class API {
             serverList = self.serversController.servers;
 
         for (let key in serverList) {
-            let server = serverList[key],
-                result = await self.getPlayer(playerName, server);
+            let server = serverList[key];
 
-            if (!result.error) {
+            try {
+                let result = await self.getPlayer(playerName, server);
+
                 callback(result);
+
                 return;
-            }
+
+            } catch (e) {}
         }
 
-        callback({ error: 'Player not found..' });
+        callback({ error: 'Could not find player in any of the worlds.' });
     }
 
     async findEmptyServer(callback) {
@@ -181,13 +184,16 @@ class API {
             serverList = self.serversController.servers;
 
         for (let key in serverList) {
-            let server = serverList[key],
-                result = await self.getServer(server);
+            let server = serverList[key];
 
-            if (!result.error) {
+            try {
+                let result = await self.getServer(server);
+
                 callback(result);
+
                 return;
-            }
+            } catch (e) {}
+
         }
 
         callback({ error: 'All servers are full.' });
