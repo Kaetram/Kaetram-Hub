@@ -1,10 +1,22 @@
 let Config = {};
 
+// Connectivity
 Config.name = "Kaetram Hub";
-
 Config.port = 9526;
 
+// Hub Configs
 Config.debug = true;
 Config.debugLevel = 'all';
+
+// Server list configs
+Config.cleanupThreshold = 600000; // Servers get removed after 10 minutes (600 seconds).
+Config.cleanupTime = 60000; // Run the cleanup ever 60 seconds.
+
+// Discord config
+Config.discordEnabled = false;
+Config.discordServerId = '';
+Config.discordBotToken = '';
+Config.discordWebhookId = '';
+Config.discordWebhookToken = '';
 
 module.exports = Config;

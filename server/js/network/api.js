@@ -58,6 +58,41 @@ class API {
         });
     }
 
+    sendChat(source, text, colour) {
+        let self = this;
+
+        self.serversController.forEachServer((server, key) => {
+            let url = self.getUrl(server, 'chat'),
+                data = {
+                    form: {
+                        token: server.accessToken,
+                        message: text,
+                        source: source,
+                        colour: colour
+                    }
+                };
+
+            request.post(url, data, (error, response, body) => {
+                if (error) {
+                    log.error(`Could not send chat to ${key}`);
+                    return;
+                }
+
+                try {
+
+                    let data = JSON.parse(body);
+
+                    if (data.error)
+                        log.error(`An error has occurred while sending chat: ${data.error}`);
+
+                } catch (e) {
+                    log.error('`getChat` could not parse the response.');
+                }
+
+            });
+        })
+    }
+
     async getServer(server) {
         let self = this,
             url = self.getUrl(server, '');

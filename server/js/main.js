@@ -1,6 +1,6 @@
 let Log = require('./util/log'),
-    Connector = require('./controllers/connector'),
     Servers = require('./controllers/servers'),
+    Discord = require('./network/discord'),
     API = require('./network/api');
 
 config = require('../config');
@@ -12,9 +12,9 @@ class Main {
         let self = this;
 
         self.serversController = new Servers();
-        self.connectorController = new Connector(self.serversController);
-        self.apiController = new API(self.serversController);
 
+        self.api = new API(self.serversController);
+        self.discord = new Discord(self.api);
 
         self.loadConsole();
     }
