@@ -58,6 +58,36 @@ class API {
         });
     }
 
+    async getServer(server) {
+        let self = this,
+            url = self.getUrl(server, '');
+
+        return new Promise((resolve) => {
+            request(url, (error, response, body) => {
+                if (error) {
+                    log.error('Could not connect to server.');
+                    resolve({ error: '`getServer`: An error occurred.' });
+
+                    return;
+                }
+
+                try {
+
+                    let data = JSON.parse(body);
+
+                    if (data.playerCount < data.maxPlayers)
+                        resolve(data);
+                    else
+                        resolve({ error: 'World is full' });
+
+                } catch (e) {
+                    resolve({ error: '`getServer` could not parse the response.' });
+                }
+
+            });
+        });
+    }
+
     async getPlayer(playerName, server) {
         let self = this,
             url = self.getUrl(server, 'player'),
@@ -72,11 +102,21 @@ class API {
 
             request.post(url, data, (error, response, body) => {
 
-                try {
-                    resolve(body);
-                } catch(e) {
+                if (error) {
                     log.error('An error has occurred while getting player.');
-                    resolve({ error: '`getPlayer`: An error has occurred.'});
+                    resolve({ error: '`getPlayer`: An error has occurred.' });
+
+                    return;
+                }
+
+                try {
+
+                    let data = JSON.parse(body);
+
+                    resolve(data);
+
+                } catch (e) {
+                    resolve({ error: '`getPlayer` could not parse the response.' });
                 }
 
             });
@@ -92,9 +132,30 @@ class API {
             let server = serverList[key],
                 result = await self.getPlayer(playerName, server);
 
-            callback(result);
+            if (!result.error) {
+                callback(result);
+                return;
+            }
         }
 
+        callback({ error: 'Player not found..' });
+    }
+
+    async findEmptyServer(callback) {
+        let self = this,
+            serverList = self.serversController.servers;
+
+        for (let key in serverList) {
+            let server = serverList[key],
+                result = await self.getServer(server);
+
+            if (!result.error) {
+                callback(result);
+                return;
+            }
+        }
+
+        callback({ error: 'All servers are full.' });
     }
 
     getUrl(server, path) {

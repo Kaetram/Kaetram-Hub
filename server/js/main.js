@@ -38,6 +38,14 @@ class Main {
 
             switch (command) {
 
+                case 'server':
+
+                    self.apiController.findEmptyServer((response) => {
+                        console.log(response);
+                    });
+
+                    break;
+
                 case 'player':
 
                     let username = blocks.join(' ');
