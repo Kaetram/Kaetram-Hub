@@ -16,6 +16,8 @@ class Main {
         self.api = new API(self.serversController);
         self.discord = new Discord(self.api);
 
+        self.api.setDiscord(self.discord);
+
         self.loadConsole();
     }
 
@@ -65,6 +67,18 @@ class Main {
         });
     }
 
+}
+
+if ( typeof String.prototype.startsWith !== 'function' ) {
+    String.prototype.startsWith = function(str) {
+        return str.length > 0 && this.substring( 0, str.length ) === str;
+    };
+}
+
+if ( typeof String.prototype.endsWith !== 'function' ) {
+    String.prototype.endsWith = function(str) {
+        return str.length > 0 && this.substring( this.length - str.length, this.length ) === str;
+    };
 }
 
 module.exports = Main;

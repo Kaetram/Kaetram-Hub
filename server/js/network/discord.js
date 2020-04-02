@@ -37,15 +37,13 @@ class Discord {
      * Sends a message to the Discord server using the webhook.
      */
 
-    sendMessage(playerName, message) {
+    sendWebhook(source, text, serverName) {
         let self = this;
 
-        if (!playerName || !config.discordEnabled)
+        if (!source || !config.discordEnabled)
             return;
 
-        let formattedUsername = Utils.formatUsername(player.username);
-
-        self.webhook.send(`**[Kaetram]** ${formattedUsername} » ${message}`)
+        self.webhook.send(`**[${serverName || 'Kaetram'}]** ${source} » ${text}`);
     }
 
 }

@@ -56,6 +56,48 @@ class API {
                 status: 'success'
             });
         });
+
+        router.post('/chat', (request, response) => {
+            if (!request.body) {
+                response.json({ status: 'error' });
+                return;
+            }
+
+            if (!self.verifyToken(request.body.hubAccessToken)) {
+                response.json({
+                    status: 'error',
+                    reason: 'Invalid `hubAccessToken` specified.'
+                });
+
+                return;
+            }
+
+            let serverId = request.body.serverId;
+
+            if (!serverId) {
+                response.json({
+                    status: 'error',
+                    reason: 'No `serverId` has been specified.'
+                });
+
+                return;
+            }
+
+            let source = request.body.source,
+                text = request.body.text,
+                serverName;
+
+            // TODO - Make this less hard-coded.
+            if (serverId.startsWith('kaetram_server')) {
+                let serverNumber = parseInt(serverId.split('kaetram_server')[1]);
+
+                serverName = `Kaetram ${serverNumber}`;
+            }
+
+            self.discord.sendWebhook(source, text, serverName);
+
+            response.json({ status: 'success' });
+        });
     }
 
     sendChat(source, text, colour) {
@@ -65,7 +107,7 @@ class API {
             let url = self.getUrl(server, 'chat'),
                 data = {
                     form: {
-                        token: server.accessToken,
+                        accessToken: server.accessToken,
                         message: text,
                         source: source,
                         colour: colour
@@ -128,7 +170,7 @@ class API {
             url = self.getUrl(server, 'player'),
             data = {
                 form: {
-                    token: server.accessToken,
+                    accessToken: server.accessToken,
                     playerName: playerName
                 }
             };
@@ -199,8 +241,19 @@ class API {
         callback({ error: 'All servers are full.' });
     }
 
+    verifyToken(hubAccessToken) {
+        return hubAccessToken === config.hubAccessToken;
+    }
+
     getUrl(server, path) {
         return `http://${server.host}:${server.port}/${path}`;
+    }
+
+    setDiscord(discord) {
+        let self = this;
+
+        if (!self.discord)
+            self.discord = discord;
     }
 
 }

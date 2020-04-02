@@ -3,9 +3,17 @@ let Config = {};
 // Connectivity
 Config.name = "Kaetram Hub";
 Config.port = 9526;
+Config.hubAccessToken = ''; // To deter random connections from doing things.
+
+/**
+ * Note that if you take the hub-server approach, you should NEVER
+ * rely solely on `hubAccessToken`. This is just a minimal safety feature.
+ * Instead, please look into properly setting up the firewall such that
+ * connections are limited to only trusted clients and APIs.
+ */
 
 // Hub Configs
-Config.debug = true;
+Config.debug = false;
 Config.debugLevel = 'all';
 
 // Server list configs
