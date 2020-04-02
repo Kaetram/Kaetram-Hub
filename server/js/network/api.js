@@ -47,7 +47,7 @@ class API {
             self.handleChat(request, response);
         });
 
-        router.post('/privatemessage', (request, response) => {
+        router.post('/privateMessage', (request, response) => {
             self.handlePrivateMessage(request, response);
         });
     }
@@ -133,46 +133,56 @@ class API {
             return;
         }
 
-        let source = request.body.source,
-            target = request.body.target,
-            text = request.body.text;
+        let source = request.body.source, // From who we are receiving the text
+            target = request.body.target, // Who we're sending the text to
+            text = request.body.text; // The text
 
+        self.searchForPlayer(target, (result) => {
+            if (result.error) {
+                response.json({ error: 'Player could not be found.' });
+                return;
+            }
 
+            let server = self.serversController.servers[result.serverId];
+
+            source = `[From ${source}]`;
+
+            self.sendChat(server, result.serverId, source, text, 'aquamarine', target);
+        });
     }
 
-    sendChat(source, text, colour) {
-        let self = this;
-
-        self.serversController.forEachServer((server, key) => {
-            let url = self.getUrl(server, 'chat'),
-                data = {
-                    form: {
-                        accessToken: server.accessToken,
-                        message: text,
-                        source: source,
-                        colour: colour
-                    }
-                };
-
-            request.post(url, data, (error, response, body) => {
-                if (error) {
-                    log.error(`Could not send chat to ${key}`);
-                    return;
+    sendChat(server, key, source, text, colour, username) {
+        let self = this,
+            url = self.getUrl(server, 'chat'),
+            data = {
+                form: {
+                    accessToken: server.accessToken,
+                    text: text,
+                    source: source,
+                    colour: colour,
+                    username: username
                 }
+            };
 
-                try {
+        request.post(url, data, (error, response, body) => {
+            if (error) {
+                log.error(`Could not send chat to ${key}`);
+                return;
+            }
 
-                    let data = JSON.parse(body);
+            try {
 
-                    if (data.error)
-                        log.error(`An error has occurred while sending chat: ${data.error}`);
+                let data = JSON.parse(body);
 
-                } catch (e) {
-                    log.error('`getChat` could not parse the response.');
-                }
+                if (data.error)
+                    log.error(`An error has occurred while sending chat: ${data.error}`);
 
-            });
-        })
+            } catch (e) {
+                log.error('`getChat` could not parse the response.');
+            }
+
+        });
+
     }
 
     async getServer(server) {
@@ -239,6 +249,14 @@ class API {
             });
         });
 
+    }
+
+    broadcastChat(source, text, colour) {
+        let self = this;
+
+        self.serversController.forEachServer((server, key) => {
+            self.sendChat(server, key, source, text, colour);
+        });
     }
 
     async searchForPlayer(username, callback) {

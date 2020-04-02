@@ -27,7 +27,7 @@ class Discord {
             let source = `[Discord | ${message.author.username}]`,
                 text = '@goldenrod@' + message.content;
 
-            self.api.sendChat(source, text, 'tomato');
+            self.api.broadcastChat(source, text, 'tomato');
         });
 
         self.client.login(config.discordBotToken);
