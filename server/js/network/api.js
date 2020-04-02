@@ -40,64 +40,104 @@ class API {
         });
 
         router.post('/ping', (request, response) => {
-            if (!request.body) {
-                response.json({ status: 'error' });
-                return;
-            }
-
-            let mappedAddress = request.connection.remoteAddress,
-                address = mappedAddress.split('::ffff:')[1];
-
-            request.body.address = address;
-
-            self.serversController.addServer(request.body);
-
-            response.json({
-                status: 'success'
-            });
+            self.handlePing(request, response);
         });
 
         router.post('/chat', (request, response) => {
-            if (!request.body) {
-                response.json({ status: 'error' });
-                return;
-            }
-
-            if (!self.verifyToken(request.body.hubAccessToken)) {
-                response.json({
-                    status: 'error',
-                    reason: 'Invalid `hubAccessToken` specified.'
-                });
-
-                return;
-            }
-
-            let serverId = request.body.serverId;
-
-            if (!serverId) {
-                response.json({
-                    status: 'error',
-                    reason: 'No `serverId` has been specified.'
-                });
-
-                return;
-            }
-
-            let source = request.body.source,
-                text = request.body.text,
-                serverName;
-
-            // TODO - Make this less hard-coded.
-            if (serverId.startsWith('kaetram_server')) {
-                let serverNumber = parseInt(serverId.split('kaetram_server')[1]);
-
-                serverName = `Kaetram ${serverNumber}`;
-            }
-
-            self.discord.sendWebhook(source, text, serverName);
-
-            response.json({ status: 'success' });
+            self.handleChat(request, response);
         });
+
+        router.post('/privatemessage', (request, response) => {
+            self.handlePrivateMessage(request, response);
+        });
+    }
+
+    handlePing(request, response) {
+        let self = this;
+
+        if (!request.body) {
+            response.json({ status: 'error' });
+            return;
+        }
+
+        let mappedAddress = request.connection.remoteAddress,
+            address = mappedAddress.split('::ffff:')[1];
+
+        request.body.address = address;
+
+        self.serversController.addServer(request.body);
+
+        response.json({
+            status: 'success'
+        });
+    }
+
+    handleChat(request, response) {
+        let self = this;
+
+        if (!request.body) {
+            response.json({ status: 'error' });
+            return;
+        }
+
+        if (!self.verifyToken(request.body.hubAccessToken)) {
+            response.json({
+                status: 'error',
+                reason: 'Invalid `hubAccessToken` specified.'
+            });
+
+            return;
+        }
+
+        let serverId = request.body.serverId;
+
+        if (!serverId) {
+            response.json({
+                status: 'error',
+                reason: 'No `serverId` has been specified.'
+            });
+
+            return;
+        }
+
+        let source = request.body.source,
+            text = request.body.text,
+            serverName;
+
+        // TODO - Make this less hard-coded.
+        if (serverId.startsWith('kaetram_server')) {
+            let serverNumber = parseInt(serverId.split('kaetram_server')[1]);
+
+            serverName = `Kaetram ${serverNumber}`;
+        }
+
+        self.discord.sendWebhook(source, text, serverName);
+
+        response.json({ status: 'success' });
+    }
+
+    handlePrivateMessage(request, response) {
+        let self = this;
+
+        if (!request.body) {
+            response.json({ status: 'error' });
+            return;
+        }
+
+        if (!self.verifyToken(request.body.hubAccessToken)) {
+            response.json({
+                status: 'error',
+                reason: 'Invalid `hubAccessToken` specified.'
+            });
+
+            return;
+        }
+
+        let source = request.body.source,
+            target = request.body.target,
+            text = request.body.text;
+
+
     }
 
     sendChat(source, text, colour) {
@@ -165,13 +205,13 @@ class API {
         });
     }
 
-    async getPlayer(playerName, server) {
+    async getPlayer(username, server) {
         let self = this,
             url = self.getUrl(server, 'player'),
             data = {
                 form: {
                     accessToken: server.accessToken,
-                    playerName: playerName
+                    username: username
                 }
             };
 
@@ -201,7 +241,7 @@ class API {
 
     }
 
-    async searchForPlayer(playerName, callback) {
+    async searchForPlayer(username, callback) {
         let self = this,
             serverList = self.serversController.servers;
 
@@ -209,7 +249,7 @@ class API {
             let server = serverList[key];
 
             try {
-                let result = await self.getPlayer(playerName, server);
+                let result = await self.getPlayer(username, server);
 
                 callback(result);
 
