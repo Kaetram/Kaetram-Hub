@@ -39,6 +39,17 @@ class API {
             });
         });
 
+        router.get('/server', (request, response) => {
+            self.findEmptyServer((result) => {
+                response.header("Access-Control-Allow-Origin", "*");
+                response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+
+                log.debug('Finding server for.. someone..');
+
+                response.json(result);
+            });
+        });
+
         router.post('/ping', (request, response) => {
             self.handlePing(request, response);
         });
@@ -201,6 +212,8 @@ class API {
                 try {
 
                     let data = JSON.parse(body);
+
+                    data.host = server.host;
 
                     if (data.playerCount < data.maxPlayers)
                         resolve(data);
