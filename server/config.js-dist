@@ -27,4 +27,15 @@ Config.discordBotToken = '';
 Config.discordWebhookId = '';
 Config.discordWebhookToken = '';
 
+// Database Configuration
+Config.databaseEnabled = false;
+Config.database = 'mongodb';
+
+Config.mongoHost = '127.0.0.1';
+Config.mongoPort = '27017';
+Config.mongoUser = 'admin';
+Config.mongoPassword = 'password';
+Config.mongoDatabase = 'database';
+Config.mongoAuth = false; // Use authentication for mongodb connections?
+
 module.exports = Config;

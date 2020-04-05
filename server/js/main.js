@@ -1,6 +1,8 @@
 let Log = require('./util/log'),
     Servers = require('./controllers/servers'),
+    Guilds = require('./controllers/guilds'),
     Discord = require('./network/discord'),
+    Database = require('./database/database'),
     API = require('./network/api');
 
 config = require('../config');
@@ -11,12 +13,16 @@ class Main {
     constructor() {
         let self = this;
 
+        log.notice(`Initializing ${config.name} engine.`);
+
         self.serversController = new Servers();
-
         self.api = new API(self.serversController);
-        self.discord = new Discord(self.api);
+        self.database = new Database().getDatabase();
 
+        self.discord = new Discord(self.api);
         self.api.setDiscord(self.discord);
+
+        self.guilds = new Guilds(self.database);
 
         self.loadConsole();
     }
