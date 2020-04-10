@@ -197,6 +197,20 @@ class API {
 
     }
 
+    sendChatToPlayer(player, text, colour) {
+        let self = this;
+
+        self.searchForPlayer(player, (server, key) => {
+            if (!server) {
+                log.error(`Could not find ${player}.`);
+                return;
+            }
+
+            self.sendChat(server, key, player, text, colour);
+
+        }, true);
+    }
+
     async getServer(server) {
         let self = this,
             url = self.getUrl(server, '');
@@ -273,7 +287,7 @@ class API {
         });
     }
 
-    async searchForPlayer(username, callback) {
+    async searchForPlayer(username, callback, returnServer) {
         let self = this,
             serverList = self.serversController.servers;
 
@@ -283,7 +297,10 @@ class API {
             try {
                 let result = await self.getPlayer(username, server);
 
-                callback(result);
+                if (returnServer)
+                    callback(server, key);
+                else
+                    callback(result);
 
                 return;
 

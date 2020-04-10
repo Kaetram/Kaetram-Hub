@@ -11,10 +11,10 @@ class Creator {
             data = {
                 name: guild.name, // Actual name
                 owner: guild.owner,
-                members: guild.members
+                players: guild.players
             };
 
-        if (!data.name || !data.owner || !data.members)
+        if (!data.name || !data.owner || !data.players)
             return;
 
         self.database.getDatabase((database) => {

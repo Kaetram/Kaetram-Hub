@@ -6,21 +6,25 @@ class Loader {
         this.database = database;
     }
 
-    getGuilds(callback, returnCollection) {
+    async getGuilds(returnCollection) {
         let self = this;
 
-        self.database.getDatabase((database) => {
-            let guilds = database.collection('guild_data'),
-                cursor = guilds.find();
+        return new Promise((resolve, reject) => {
+            self.database.getDatabase((database) => {
+                let guilds = database.collection('guild_data'),
+                    cursor = guilds.find();
 
-            cursor.toArray().then((guildsList) => {
-                callback(guildsList, returnCollection ? guilds : null);
+                cursor.toArray().then((guildsList) => {
+                    resolve(guildsList, returnCollection ? guilds : null);
+                });
             });
         });
+
     }
 
-    getGuild(name, callback) {
+    async getGuild(name, callback) {
         let self = this;
+
 
         self.database.getDatabase((database) => {
             let guilds = database.collection('guild_data'),
@@ -40,7 +44,7 @@ class Loader {
                 callback({
                     name: info.name,
                     owner: info.owner,
-                    members: info.members
+                    players: info.players
                 });
 
             });

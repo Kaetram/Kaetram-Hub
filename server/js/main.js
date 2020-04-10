@@ -22,7 +22,7 @@ class Main {
         self.discord = new Discord(self.api);
         self.api.setDiscord(self.discord);
 
-        self.guilds = new Guilds(self.database);
+        self.guilds = new Guilds(self.api, self.database);
 
         self.loadConsole();
     }
