@@ -72,9 +72,10 @@ class API {
         }
 
         let mappedAddress = request.connection.remoteAddress,
-            address = mappedAddress.split('::ffff:')[1];
+            host = mappedAddress.split('::ffff:')[1];
 
-        request.body.address = address;
+        // This is the host we use to connect the hub to the server API.
+        request.body.host = host;
 
         self.serversController.addServer(request.body);
 
@@ -213,7 +214,7 @@ class API {
 
                     let data = JSON.parse(body);
 
-                    data.host = server.host;
+                    data.host = server.remoteServerHost || server.host;
 
                     if (data.playerCount < data.maxPlayers)
                         resolve(data);
@@ -305,7 +306,10 @@ class API {
                 callback(result);
 
                 return;
-            } catch (e) {}
+            } catch (e) {
+
+                console.log(e);
+            }
 
         }
 

@@ -48,10 +48,11 @@ class Servers {
         }
 
         self.servers[data.serverId] = {
-            host: data.address,
+            host: data.host,
             port: data.port,
             accessToken: data.accessToken,
-            lastPing: new Date().getTime()
+            lastPing: new Date().getTime(),
+            remoteServerHost: data.remoteServerHost
         };
 
         log.notice(`Server ${data.serverId} has been added to the hub.`);
