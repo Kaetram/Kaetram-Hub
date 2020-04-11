@@ -114,6 +114,7 @@ class API {
 
         let source = request.body.source,
             text = request.body.text,
+            withArrow = request.body.withArrow,
             serverName;
 
         // TODO - Make this less hard-coded.
@@ -123,7 +124,9 @@ class API {
             serverName = `Kaetram ${serverNumber}`;
         }
 
-        self.discord.sendWebhook(source, text, serverName);
+        console.log(request.body);
+
+        self.discord.sendWebhook(source, text, serverName, withArrow);
 
         response.json({ status: 'success' });
     }
