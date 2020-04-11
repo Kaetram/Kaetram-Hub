@@ -124,8 +124,6 @@ class API {
             serverName = `Kaetram ${serverNumber}`;
         }
 
-        console.log(request.body);
-
         self.discord.sendWebhook(source, text, serverName, withArrow);
 
         response.json({ status: 'success' });
