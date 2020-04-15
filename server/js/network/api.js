@@ -42,10 +42,7 @@ class API {
 
         router.get('/server', (request, response) => {
             self.findEmptyServer((result) => {
-                response.header("Access-Control-Allow-Origin", "*");
-                response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-
-                log.debug('Finding server for.. someone..');
+                self.setHeaders(response);
 
                 response.json(result);
             });
@@ -53,6 +50,8 @@ class API {
 
         router.get('/all', (request, response) => {
             self.getServers((data) => {
+                self.setHeaders(response);
+
                 response.json(data);
             });
         });
@@ -375,6 +374,11 @@ class API {
 
         if (!self.discord)
             self.discord = discord;
+    }
+
+    setHeaders(response) {
+        response.header("Access-Control-Allow-Origin", "*");
+        response.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     }
 
 }
