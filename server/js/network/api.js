@@ -1,6 +1,7 @@
 let express = require('express'),
     request = require('request'),
     bodyParser = require('body-parser'),
+    Utils = require('../util/utils'),
     APIConstants = require('../util/apiconstants');
 
 class API {
@@ -47,6 +48,12 @@ class API {
                 log.debug('Finding server for.. someone..');
 
                 response.json(result);
+            });
+        });
+
+        router.get('/all', (request, response) => {
+            self.getServers((data) => {
+                response.json(data);
             });
         });
 
@@ -115,14 +122,7 @@ class API {
         let source = request.body.source,
             text = request.body.text,
             withArrow = request.body.withArrow,
-            serverName;
-
-        // TODO - Make this less hard-coded.
-        if (serverId.startsWith('kaetram_server')) {
-            let serverNumber = parseInt(serverId.split('kaetram_server')[1]);
-
-            serverName = `Kaetram ${serverNumber}`;
-        }
+            serverName = Utils.formatServerName(serverId);
 
         self.discord.sendWebhook(source, text, serverName, withArrow);
 
@@ -332,6 +332,34 @@ class API {
         }
 
         callback({ error: 'All servers are full.' });
+    }
+
+    async getServers(callback) {
+        let self = this,
+            serverList = self.serversController.servers,
+            serverData = [];
+
+        for (let key in serverList) {
+            let server = serverList[key];
+
+            try {
+                let result = await self.getServer(server);
+
+                serverData.push({
+                    serverId: key,
+                    host: result.host,
+                    port: result.port,
+                    gameVersion: result.gameVersion,
+                    playerCount: result.playerCount,
+                    maxPlayers: result.maxPlayers
+                })
+
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        callback(serverData);
     }
 
     verifyToken(hubAccessToken) {

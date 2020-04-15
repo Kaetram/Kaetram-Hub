@@ -17,8 +17,8 @@ Config.debug = false;
 Config.debugLevel = 'all';
 
 // Server list configs
-Config.cleanupThreshold = 600000; // Servers get removed after 10 minutes (600 seconds).
-Config.cleanupTime = 60000; // Run the cleanup ever 60 seconds.
+Config.cleanupThreshold = 120000; // Servers get removed after 2 minutes (120 seconds).
+Config.cleanupTime = 30000; // Run the cleanup ever 30 seconds.
 
 // Discord config
 Config.discordEnabled = false;

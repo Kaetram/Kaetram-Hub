@@ -30,8 +30,11 @@ class Servers {
                 let time = new Date().getTime();
 
                 if (time - server.lastPing > config.cleanupThreshold) {
+
+                    if (self.removeServerCallback)
+                        self.removeServerCallback(key, self.servers[key]);
+
                     delete self.servers[key];
-                    log.error(`Server ${key} removed from hub for inactivity`);
                 }
 
             });
@@ -55,7 +58,8 @@ class Servers {
             remoteServerHost: data.remoteServerHost
         };
 
-        log.notice(`Server ${data.serverId} has been added to the hub.`);
+        if (self.addServerCallback)
+            self.addServerCallback(data.serverId, self.servers[data.serverId]);
     }
 
     getServerCount() {
@@ -66,6 +70,14 @@ class Servers {
         _.each(this.servers, (server, key) => {
             callback(server, key);
         })
+    }
+
+    onAdd(callback) {
+        this.addServerCallback = callback;
+    }
+
+    onRemove(callback) {
+        this.removeServerCallback = callback;
     }
 
 }

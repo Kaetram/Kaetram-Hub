@@ -1,9 +1,11 @@
 let Log = require('./util/log'),
+    Utils = require('./util/utils'),
     Servers = require('./controllers/servers'),
     Guilds = require('./controllers/guilds'),
     Discord = require('./network/discord'),
     Database = require('./database/database'),
     API = require('./network/api');
+
 
 config = require('../config');
 log = new Log();
@@ -24,7 +26,28 @@ class Main {
 
         self.guilds = new Guilds(self.api, self.database);
 
+        self.load();
         self.loadConsole();
+    }
+
+    load() {
+        let self = this;
+
+        self.serversController.onAdd((serverId, info) => {
+            let serverName = Utils.formatServerName(serverId);
+
+            log.notice(`Server ${serverId} has been added to the hub.`);
+
+            self.discord.sendRawWebhook(`:white_check_mark: **${serverName} is now online!**`);
+        });
+
+        self.serversController.onRemove((serverId, info) => {
+            let serverName = Utils.formatServerName(serverId);
+
+            log.error(`Server ${serverId} has been removed from hub for inactivity.`);
+
+            self.discord.sendRawWebhook(`:octagonal_sign: **${serverName} has gone offline!**`)
+        });
     }
 
     loadConsole() {
@@ -47,6 +70,8 @@ class Main {
             switch (command) {
 
                 case 'server':
+
+                    console.log(self.api.findEmptyServer());
 
                     self.api.findEmptyServer((response) => {
                         console.log(response);

@@ -46,6 +46,15 @@ class Discord {
         self.webhook.send(`**[${serverName || 'Kaetram'}]** ${source}${withArrow ? ' »' : ''} ${text}`);
     }
 
+    sendRawWebhook(message) {
+        let self = this;
+
+        if (!message || !config.discordEnabled || config.debug)
+            return;
+
+        self.webhook.send(message);
+    }
+
 }
 
 module.exports = Discord;
