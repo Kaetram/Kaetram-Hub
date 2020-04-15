@@ -21,7 +21,7 @@ class MongoDB {
 
         self.connection = null;
 
-        log.info('Finished loading MongoDB.');
+        log.info('Successfully initialized MongoDB.');
     }
 
     getDatabase(callback) {

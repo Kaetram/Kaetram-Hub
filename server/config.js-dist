@@ -38,4 +38,7 @@ Config.mongoPassword = 'password';
 Config.mongoDatabase = 'database';
 Config.mongoAuth = false; // Use authentication for mongodb connections?
 
+// Guild config
+Config.guildsEnabled = Config.databaseEnabled; // Databse must be present for guilds.
+
 module.exports = Config;
