@@ -3,16 +3,14 @@ let _ = require('underscore');
 class Guilds {
 
 	constructor(api, database) {
-		let self = this;
-
 		if (!config.guildsEnabled)
 			return;
 
-		self.api = api;
-		self.database = database;
+		this.api = api;
+		this.database = database;
 
-		self.creator = database.creator;
-		self.loader = database.loader;
+		this.creator = database.creator;
+		this.loader = database.loader;
 
 		/**
 		 * A guild contains the following information:
@@ -23,58 +21,54 @@ class Guilds {
 		 */
 
 		// Store local guild object array for easier modifications.
-		self.guilds = {};
+		this.guilds = {};
 
-		self.load();
+		this.load();
 	}
 
 	async load() {
-		let self = this,
-			guilds = await self.loader.getGuilds();
+		let guilds = await this.loader.getGuilds();
 
 		_.each(guilds, (guild) => {
 
-			self.guilds[guild.name] = {
+			this.guilds[guild.name] = {
 				owner: guild.owner,
 				players: guild.players
 			};
 
 		});
 
-		log.info(`Finished loading ${self.getCount()} guilds.`);
+		log.info(`Finished loading ${this.getCount()} guilds.`);
 	}
 
 	create(name, owner) {
-		let self = this;
-
-		if (self.exists(name)) {
-			self.api.sendChatToPlayer(owner, 'Could not create a guild with that name.', 'red');
+		if (this.exists(name)) {
+			this.api.sendChatToPlayer(owner, 'Could not create a guild with that name.', 'red');
 			return;
 		}
 
-		self.guilds[name] = {
+		this.guilds[name] = {
 			owner: owner,
 			players: {}
 		};
 
-		self.guilds[name].players[owner] = {
+		this.guilds[name].players[owner] = {
 			rank: 'owner'
 		};
 
-		self.save();
+		this.save();
 	}
 
 	join(guild, name, rank) {
-		let self = this,
-			playerGuild = self.findPlayer(name);
+		let playerGuild = this.findPlayer(name);
 
 		if (playerGuild) {
-			self.api.sendChatToPlayer(name, 'You are already in a guild.', 'red');
+			this.api.sendChatToPlayer(name, 'You are already in a guild.', 'red');
 			return;
 		}
 
 		if (name in guild.players) {
-			self.api.sendChatToPlayer(name, 'You have already joined this guild.', 'red');
+			this.api.sendChatToPlayer(name, 'You have already joined this guild.', 'red');
 			return;
 		}
 
@@ -82,7 +76,7 @@ class Guilds {
 			rank: rank
 		};
 
-		self.save();
+		this.save();
 	}
 
 	updatePlayer(guild, name, data) {
@@ -95,15 +89,14 @@ class Guilds {
 	 */
 
 	leave(name) {
-		let self = this,
-			guild = self.findPlayer(player);
+		let guild = this.findPlayer(player);
 
 		if (!guild)
 			return;
 
 		delete guild.players[name];
 
-		self.save();
+		this.save();
 	}
 
 	/**
@@ -111,21 +104,17 @@ class Guilds {
 	 */
 
 	findPlayer(name) {
-		let self = this;
-
-		for (let i in self.guilds)
-			if (name in self.guilds[i].players)
-				return self.guilds[i];
+		for (let i in this.guilds)
+			if (name in this.guilds[i].players)
+				return this.guilds[i];
 
 		return null;
 	}
 
 	save() {
-		let self = this;
+		this.forEachGuild((guild) => {
 
-		self.forEachGuild((guild) => {
-
-			self.creator.saveGuild(guild);
+			this.creator.saveGuild(guild);
 
 		});
 	}
@@ -135,10 +124,8 @@ class Guilds {
 	 */
 
 	exists(name) {
-		let self = this;
-
-		for (let i in self.guilds)
-			if (self.guilds[i].name.toLowerCase() === name.toLowerCase())
+		for (let i in this.guilds)
+			if (this.guilds[i].name.toLowerCase() === name.toLowerCase())
 				return true;
 
 		return false;

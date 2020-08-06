@@ -7,8 +7,7 @@ class Creator {
     }
 
     saveGuild(guild) {
-        let self = this,
-            data = {
+        let data = {
                 name: guild.name, // Actual name
                 owner: guild.owner,
                 players: guild.players
@@ -17,7 +16,7 @@ class Creator {
         if (!data.name || !data.owner || !data.players)
             return;
 
-        self.database.getDatabase((database) => {
+        this.database.getDatabase((database) => {
             let guilds = database.collection('guild_data');
 
             guilds.updateOne({

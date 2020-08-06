@@ -7,10 +7,8 @@ class Loader {
     }
 
     async getGuilds(returnCollection) {
-        let self = this;
-
-        return new Promise((resolve, reject) => {
-            self.database.getDatabase((database) => {
+        return new Promise((resolve, _reject) => {
+            this.database.getDatabase((database) => {
                 let guilds = database.collection('guild_data'),
                     cursor = guilds.find();
 
@@ -23,10 +21,7 @@ class Loader {
     }
 
     async getGuild(name, callback) {
-        let self = this;
-
-
-        self.database.getDatabase((database) => {
+        this.database.getDatabase((database) => {
             let guilds = database.collection('guild_data'),
                 cursor = guilds.find({ name: name.toLowerCase() });
 
@@ -52,9 +47,7 @@ class Loader {
     }
 
     guildExists(name, callback) {
-        let self = this;
-
-        self.database.getDatabase((database) => {
+        this.database.getDatabase((database) => {
             let guilds = database.collection('guild_data'),
                 cursor = guilds.find({ name: name.toLowerCase() });
 

@@ -1,9 +1,8 @@
 let express = require('express'),
     request = require('request'),
     bodyParser = require('body-parser'),
-    Utils = require('../util/utils'),
-    APIConstants = require('../util/apiconstants');
-
+    Utils = require('../util/utils');
+    
 class API {
 
     /**
@@ -11,9 +10,7 @@ class API {
      */
 
     constructor(serversController) {
-        let self = this;
-
-        self.serversController = serversController;
+        this.serversController = serversController;
 
         let app = express();
 
@@ -22,7 +19,7 @@ class API {
 
         let router = express.Router();
 
-        self.handle(router);
+        this.handle(router);
 
         app.use('/', router);
 
@@ -32,46 +29,42 @@ class API {
     }
 
     handle(router) {
-        let self = this;
-
-        router.get('/', (request, response) => {
+        router.get('/', (_request, response) => {
             response.json({
                 status: 'Kaetram Hub is functional.'
             });
         });
 
-        router.get('/server', (request, response) => {
-            self.findEmptyServer((result) => {
-                self.setHeaders(response);
+        router.get('/server', (_request, response) => {
+            this.findEmptyServer((result) => {
+                this.setHeaders(response);
 
                 response.json(result);
             });
         });
 
-        router.get('/all', (request, response) => {
-            self.getServers((data) => {
-                self.setHeaders(response);
+        router.get('/all', (_request, response) => {
+            this.getServers((data) => {
+                this.setHeaders(response);
 
                 response.json(data);
             });
         });
 
         router.post('/ping', (request, response) => {
-            self.handlePing(request, response);
+            this.handlePing(request, response);
         });
 
         router.post('/chat', (request, response) => {
-            self.handleChat(request, response);
+            this.handleChat(request, response);
         });
 
         router.post('/privateMessage', (request, response) => {
-            self.handlePrivateMessage(request, response);
+            this.handlePrivateMessage(request, response);
         });
     }
 
     handlePing(request, response) {
-        let self = this;
-
         if (!request.body) {
             response.json({ status: 'error' });
             return;
@@ -83,7 +76,7 @@ class API {
         // This is the host we use to connect the hub to the server API.
         request.body.host = host;
 
-        self.serversController.addServer(request.body);
+        this.serversController.addServer(request.body);
 
         response.json({
             status: 'success'
@@ -91,14 +84,12 @@ class API {
     }
 
     handleChat(request, response) {
-        let self = this;
-
         if (!request.body) {
             response.json({ status: 'error' });
             return;
         }
 
-        if (!self.verifyToken(request.body.hubAccessToken)) {
+        if (!this.verifyToken(request.body.hubAccessToken)) {
             response.json({
                 status: 'error',
                 reason: 'Invalid `hubAccessToken` specified.'
@@ -123,20 +114,18 @@ class API {
             withArrow = request.body.withArrow,
             serverName = Utils.formatServerName(serverId);
 
-        self.discord.sendWebhook(source, text, serverName, withArrow);
+        this.discord.sendWebhook(source, text, serverName, withArrow);
 
         response.json({ status: 'success' });
     }
 
     handlePrivateMessage(request, response) {
-        let self = this;
-
         if (!request.body) {
             response.json({ status: 'error' });
             return;
         }
 
-        if (!self.verifyToken(request.body.hubAccessToken)) {
+        if (!this.verifyToken(request.body.hubAccessToken)) {
             response.json({
                 status: 'error',
                 reason: 'Invalid `hubAccessToken` specified.'
@@ -149,23 +138,22 @@ class API {
             target = request.body.target, // Who we're sending the text to
             text = request.body.text; // The text
 
-        self.searchForPlayer(target, (result) => {
+        this.searchForPlayer(target, (result) => {
             if (result.error) {
                 response.json({ error: 'Player could not be found.' });
                 return;
             }
 
-            let server = self.serversController.servers[result.serverId];
+            let server = this.serversController.servers[result.serverId];
 
             source = `[From ${source}]`;
 
-            self.sendChat(server, result.serverId, source, text, 'aquamarine', target);
+            this.sendChat(server, result.serverId, source, text, 'aquamarine', target);
         });
     }
 
     sendChat(server, key, source, text, colour, username) {
-        let self = this,
-            url = self.getUrl(server, 'chat'),
+        let url = this.getUrl(server, 'chat'),
             data = {
                 form: {
                     accessToken: server.accessToken,
@@ -176,7 +164,7 @@ class API {
                 }
             };
 
-        request.post(url, data, (error, response, body) => {
+        request.post(url, data, (error, _response, body) => {
             if (error) {
                 log.error(`Could not send chat to ${key}`);
                 return;
@@ -198,25 +186,22 @@ class API {
     }
 
     sendChatToPlayer(player, text, colour) {
-        let self = this;
-
-        self.searchForPlayer(player, (server, key) => {
+        this.searchForPlayer(player, (server, key) => {
             if (!server) {
                 log.error(`Could not find ${player}.`);
                 return;
             }
 
-            self.sendChat(server, key, player, text, colour);
+            this.sendChat(server, key, player, text, colour);
 
         }, true);
     }
 
     async getServer(server) {
-        let self = this,
-            url = self.getUrl(server, '');
+        let url = this.getUrl(server, '');
 
         return new Promise((resolve, reject) => {
-            request(url, (error, response, body) => {
+            request(url, (error, _response, body) => {
                 if (error) {
                     log.error('Could not connect to server.');
                     reject({ error: '`getServer`: An error occurred.' });
@@ -244,8 +229,7 @@ class API {
     }
 
     async getPlayer(username, server) {
-        let self = this,
-            url = self.getUrl(server, 'player'),
+        let url = this.getUrl(server, 'player'),
             data = {
                 form: {
                     accessToken: server.accessToken,
@@ -255,7 +239,7 @@ class API {
 
         return new Promise((resolve, reject) => {
 
-            request.post(url, data, (error, response, body) => {
+            request.post(url, data, (error, _response, body) => {
 
                 if (error) {
                     log.error('An error has occurred while getting player.');
@@ -280,22 +264,19 @@ class API {
     }
 
     broadcastChat(source, text, colour) {
-        let self = this;
-
-        self.serversController.forEachServer((server, key) => {
-            self.sendChat(server, key, source, text, colour);
+        this.serversController.forEachServer((server, key) => {
+            this.sendChat(server, key, source, text, colour);
         });
     }
 
     async searchForPlayer(username, callback, returnServer) {
-        let self = this,
-            serverList = self.serversController.servers;
+        let serverList = this.serversController.servers;
 
         for (let key in serverList) {
             let server = serverList[key];
 
             try {
-                let result = await self.getPlayer(username, server);
+                let result = await this.getPlayer(username, server);
 
                 if (returnServer)
                     callback(server, key);
@@ -311,14 +292,13 @@ class API {
     }
 
     async findEmptyServer(callback) {
-        let self = this,
-            serverList = self.serversController.servers;
+        let serverList = this.serversController.servers;
 
         for (let key in serverList) {
             let server = serverList[key];
 
             try {
-                let result = await self.getServer(server);
+                let result = await this.getServer(server);
 
                 callback(result);
 
@@ -334,15 +314,14 @@ class API {
     }
 
     async getServers(callback) {
-        let self = this,
-            serverList = self.serversController.servers,
+        let serverList = this.serversController.servers,
             serverData = [];
 
         for (let key in serverList) {
             let server = serverList[key];
 
             try {
-                let result = await self.getServer(server);
+                let result = await this.getServer(server);
 
                 serverData.push({
                     serverId: key,
@@ -370,10 +349,8 @@ class API {
     }
 
     setDiscord(discord) {
-        let self = this;
-
-        if (!self.discord)
-            self.discord = discord;
+        if (!this.discord)
+            this.discord = discord;
     }
 
     setHeaders(response) {

@@ -13,46 +13,41 @@ log = new Log();
 class Main {
 
     constructor() {
-        let self = this;
-
         log.notice(`Initializing ${config.name} engine.`);
 
-        self.serversController = new Servers();
-        self.api = new API(self.serversController);
-        self.database = new Database().getDatabase();
+        this.serversController = new Servers();
+        this.api = new API(this.serversController);
+        this.database = new Database().getDatabase();
 
-        self.discord = new Discord(self.api);
-        self.api.setDiscord(self.discord);
+        this.discord = new Discord(this.api);
+        this.api.setDiscord(this.discord);
 
-        self.guilds = new Guilds(self.api, self.database);
+        this.guilds = new Guilds(this.api, this.database);
 
-        self.load();
-        self.loadConsole();
+        this.load();
+        this.loadConsole();
     }
 
     load() {
-        let self = this;
-
-        self.serversController.onAdd((serverId, info) => {
+        this.serversController.onAdd((serverId, _info) => {
             let serverName = Utils.formatServerName(serverId);
 
             log.notice(`Server ${serverId} has been added to the hub.`);
 
-            self.discord.sendRawWebhook(`:white_check_mark: **${serverName} is now online!**`);
+            this.discord.sendRawWebhook(`:white_check_mark: **${serverName} is now online!**`);
         });
 
-        self.serversController.onRemove((serverId, info) => {
+        this.serversController.onRemove((serverId, _info) => {
             let serverName = Utils.formatServerName(serverId);
 
             log.error(`Server ${serverId} has been removed from hub for inactivity.`);
 
-            self.discord.sendRawWebhook(`:octagonal_sign: **${serverName} has gone offline!**`)
+            this.discord.sendRawWebhook(`:octagonal_sign: **${serverName} has gone offline!**`)
         });
     }
 
     loadConsole() {
-        let self = this,
-            stdin = process.openStdin();
+        let stdin = process.openStdin();
 
         stdin.addListener('data', (data) => {
             let message = data.toString().replace(/(\r\n|\n|\r)/gm, ''),
@@ -71,9 +66,9 @@ class Main {
 
                 case 'server':
 
-                    console.log(self.api.findEmptyServer());
+                    console.log(this.api.findEmptyServer());
 
-                    self.api.findEmptyServer((response) => {
+                    this.api.findEmptyServer((response) => {
                         console.log(response);
                     });
 
@@ -88,7 +83,7 @@ class Main {
                         return;
                     }
 
-                    self.api.searchForPlayer(username, (response) => {
+                    this.api.searchForPlayer(username, (response) => {
                         console.log(response);
                     });
 

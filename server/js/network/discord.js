@@ -3,21 +3,19 @@ let DiscordJS = require('discord.js');
 class Discord {
 
     constructor(api) {
-        let self = this;
-
         if (!config.discordEnabled)
             return;
 
-        self.api = api;
+        this.api = api;
 
-        self.client = new DiscordJS.Client();
-        self.webhook = new DiscordJS.WebhookClient(config.discordWebhookId, config.discordWebhookToken);
+        this.client = new DiscordJS.Client();
+        this.webhook = new DiscordJS.WebhookClient(config.discordWebhookId, config.discordWebhookToken);
 
-        self.client.on('ready', () => {
+        this.client.on('ready', () => {
             log.notice('Successfully connected to the Discord server.');
         });
 
-        self.client.on('message', (message) => {
+        this.client.on('message', (message) => {
             if (message.author.id === config.discordWebhookId)
                 return;
 
@@ -27,10 +25,10 @@ class Discord {
             let source = `[Discord | ${message.author.username}]`,
                 text = '@goldenrod@' + message.content;
 
-            self.api.broadcastChat(source, text, 'tomato');
+            this.api.broadcastChat(source, text, 'tomato');
         });
 
-        self.client.login(config.discordBotToken);
+        this.client.login(config.discordBotToken);
     }
 
     /**
@@ -38,21 +36,17 @@ class Discord {
      */
 
     sendWebhook(source, text, serverName, withArrow) {
-        let self = this;
-
         if (!source || !config.discordEnabled)
             return;
 
-        self.webhook.send(`**[${serverName || 'Kaetram'}]** ${source}${withArrow ? ' »' : ''} ${text}`);
+        this.webhook.send(`**[${serverName || 'Kaetram'}]** ${source}${withArrow ? ' »' : ''} ${text}`);
     }
 
     sendRawWebhook(message) {
-        let self = this;
-
         if (!message || !config.discordEnabled || config.debug)
             return;
 
-        self.webhook.send(message);
+        this.webhook.send(message);
     }
 
 }

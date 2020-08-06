@@ -2,34 +2,30 @@
 
 let MongoClient = require('mongodb').MongoClient,
     Loader = require('./loader'),
-    Creator = require('./creator'),
-    _ = require('underscore');
-
+    Creator = require('./creator');
+    
 class MongoDB {
 
     constructor(host, port, user, password, database) {
-        let self = this;
+        this.host = host;
+        this.port = port;
+        this.user = user;
+        this.password = password;
+        this.database = database;
 
-        self.host = host;
-        self.port = port;
-        self.user = user;
-        self.password = password;
-        self.database = database;
+        this.loader = new Loader(this);
+        this.creator = new Creator(this);
 
-        self.loader = new Loader(self);
-        self.creator = new Creator(self);
-
-        self.connection = null;
+        this.connection = null;
 
         log.info('Successfully initialized MongoDB.');
     }
 
     getDatabase(callback) {
-        let self = this,
-            url = `mongodb://${self.host}:${self.port}/${self.database}`;
+        let url = `mongodb://${this.host}:${this.port}/${this.database}`;
 
             if (config.mongoAuth)
-                url = `mongodb://${self.user}:${self.password}@${self.host}:${self.port}/${self.database}`;
+                url = `mongodb://${this.user}:${this.password}@${this.host}:${this.port}/${this.database}`;
 
             let client = new MongoClient(url, {
                 useUnifiedTopology: true,
@@ -37,8 +33,8 @@ class MongoDB {
                 wtimeout: 5
             });
 
-        if (self.connection) {
-            callback(self.connection);
+        if (this.connection) {
+            callback(this.connection);
             return;
         }
 
@@ -49,9 +45,9 @@ class MongoDB {
                 return;
             }
 
-            self.connection = newClient.db(self.database);
+            this.connection = newClient.db(this.database);
 
-            callback(self.connection);
+            callback(this.connection);
         });
 
     }

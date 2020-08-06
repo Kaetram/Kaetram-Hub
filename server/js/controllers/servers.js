@@ -12,29 +12,25 @@ class Servers {
      */
 
     constructor() {
-        let self = this;
+        this.servers = {};
 
-        self.servers = {};
+        this.cleanupInterval = null;
 
-        self.cleanupInterval = null;
-
-        self.load();
+        this.load();
     }
 
     load() {
-        let self = this;
+        this.cleanupInterval = setInterval(() => {
 
-        self.cleanupInterval = setInterval(() => {
-
-            self.forEachServer((server, key) => {
+            this.forEachServer((server, key) => {
                 let time = new Date().getTime();
 
                 if (time - server.lastPing > config.cleanupThreshold) {
 
-                    if (self.removeServerCallback)
-                        self.removeServerCallback(key, self.servers[key]);
+                    if (this.removeServerCallback)
+                        this.removeServerCallback(key, this.servers[key]);
 
-                    delete self.servers[key];
+                    delete this.servers[key];
                 }
 
             });
@@ -43,14 +39,12 @@ class Servers {
     }
 
     addServer(data) {
-        let self = this;
-
-        if (data.serverId in self.servers) {
-            self.servers[data.serverId].lastPing = new Date().getTime();
+        if (data.serverId in this.servers) {
+            this.servers[data.serverId].lastPing = new Date().getTime();
             return;
         }
 
-        self.servers[data.serverId] = {
+        this.servers[data.serverId] = {
             host: data.host,
             port: data.port,
             accessToken: data.accessToken,
@@ -58,8 +52,8 @@ class Servers {
             remoteServerHost: data.remoteServerHost
         };
 
-        if (self.addServerCallback)
-            self.addServerCallback(data.serverId, self.servers[data.serverId]);
+        if (this.addServerCallback)
+            this.addServerCallback(data.serverId, this.servers[data.serverId]);
     }
 
     getServerCount() {
