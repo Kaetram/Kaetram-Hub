@@ -2,7 +2,7 @@ let express = require('express'),
     request = require('request'),
     bodyParser = require('body-parser'),
     Utils = require('../util/utils');
-    
+
 class API {
 
     /**
@@ -61,6 +61,10 @@ class API {
 
         router.post('/privateMessage', (request, response) => {
             this.handlePrivateMessage(request, response);
+        });
+
+        router.post('guild', (request, response) => {
+            this.handleGuild(request, response);
         });
     }
 
@@ -150,6 +154,24 @@ class API {
 
             this.sendChat(server, result.serverId, source, text, 'aquamarine', target);
         });
+    }
+
+    handleGuild(request, response) {
+        if (!request.body) {
+            response.json({ status: 'error' });
+            return;
+        }
+
+        if (!this.verifyToken(request.body.hubAccessToken)) {
+            response.json({
+                status: 'error',
+                reason: 'Invalid `hubAccessToken` specified.'
+            });
+
+            return;
+        }
+
+        console.log(request.body);
     }
 
     sendChat(server, key, source, text, colour, username) {

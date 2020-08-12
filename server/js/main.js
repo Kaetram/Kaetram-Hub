@@ -89,6 +89,14 @@ class Main {
 
                     break;
 
+                case 'guilds':
+
+                    this.database.loader.getGuilds().then((guilds) => {
+                        console.log(guilds);
+                    });
+
+                    break;
+
             }
         });
     }
